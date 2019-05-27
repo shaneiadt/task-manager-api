@@ -59,6 +59,18 @@ userSchema.methods.generateAuthToken = async function (next) {
     return token;
 }
 
+userSchema.methods.toJSON = function (next) {
+    const user = this;
+    const { age, name, email, _id, __v } = user.toObject();
+    return {
+        age,
+        name,
+        email,
+        _id,
+        __v
+    };
+}
+
 userSchema.pre('save', async function (next) {
     const user = this;
     if (user.isModified('password')) {
