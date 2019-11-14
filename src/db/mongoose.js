@@ -1,5 +1,6 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
-const connectionURL = 'mongodb://127.0.0.1:27017/task-manager-api';
+const connectionURL = process.env.MONGO_DB_CONNECTION;
 
 mongoose.set('useFindAndModify', false);
 
