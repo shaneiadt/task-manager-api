@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require('bcryptjs');
@@ -61,7 +62,7 @@ userSchema.virtual('tasks', {
 
 userSchema.methods.generateAuthToken = async function (next) {
     const user = this;
-    const token = jwt.sign({ _id: user.id.toString() }, 'thisismynewcourse');
+    const token = jwt.sign({ _id: user.id.toString() }, process.env.JWT_TOKEN);
 
     user.tokens = user.tokens.concat({ token });
     await user.save();
