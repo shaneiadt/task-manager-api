@@ -1,26 +1,9 @@
 const request = require('supertest');
 const app = require('../src/app');
-
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 const User = require('../src/models/User');
+const { mockUser, mockUserId, setupDatabase } = require('../fixtures/db');
 
-const mockUserId = new mongoose.Types.ObjectId();
-const mockUser = {
-    _id: mockUserId,
-    name: 'Mike',
-    email: 'mike@example.com',
-    password: '56whatboiboom6699bovs',
-    age: 27,
-    tokens: [{
-        token: jwt.sign({ _id: mockUserId.toString() }, process.env.JWT_TOKEN)
-    }]
-};
-
-beforeEach(async () => {
-    await User.deleteMany();
-    await new User(mockUser).save();
-});
+beforeEach(setupDatabase);
 
 test('Should sign up a new user', async () => {
     const response = await request(app)
@@ -103,7 +86,7 @@ test('Should upload avatar image', async () => {
     await request(app)
         .post('/users/me/avatar')
         .set('Authorization', `Bearer ${mockUser.tokens[0].token}`)
-        .attach('avatar', '__tests__/fixtures/profile-pic.jpg')
+        .attach('avatar', 'fixtures/profile-pic.jpg')
         .expect(200);
 
     const user = await User.findById(mockUserId);
@@ -119,5 +102,17 @@ test('Should update valid user fields', async () => {
         })
         .expect(200);
 
-    // const user = await User.findById(mockUserId)
+    const user = await User.findById(mockUserId)
+    expect(user.name).toBe('JohnJoe');
+});
+
+test('Should not update invalid user fields', async () => {
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${mockUser.tokens[0].token}`)
+        .send({
+            'location': 'Paris'
+        })
+        .expect(400);
+
 });
