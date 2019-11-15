@@ -42,8 +42,8 @@ router.patch('/users/me', auth, async (req, res) => {
 
     try {
         updates.forEach(update => req.user[update] = req.body[update]);
-        await user.save();
-        res.send(user);
+        await req.user.save();
+        res.send(req.user);
     } catch (e) {
         res.status(500).send(e);
     }
@@ -65,7 +65,7 @@ router.post('/users/login', async (req, res) => {
         const token = await user.generateAuthToken();
         res.send({ user, token });
     } catch (e) {
-        res.status(500).send(e);
+        res.status(400).send(e);
     }
 });
 
